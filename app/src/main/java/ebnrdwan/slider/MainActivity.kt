@@ -3,11 +3,10 @@ package ebnrdwan.slider
 import alirezat775.sliderview.R
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import ebnrdwan.lib.slider.SliderComponent
-import ebnrdwan.lib.slider.SliderListener
+import ebnrdwan.lib.slider.SliderLayoutManager
 import ebnrdwan.lib.slider.SliderRecyclerView
+import ebnrdwan.lib.slider.slider_listener.SliderListener
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,35 +16,55 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val adapter = SampleAdapter()
-        val msliderManager = MSliderLayoutManager(this, SliderRecyclerView.HORIZONTAL, false)
-        val sliderComponent =
-            SliderComponent(msliderManager, slider_view, adapter)
-        sliderComponent.setCalculateCenterThreshold(true)
-
-        sliderComponent.addSliderListener(object :
-            SliderListener {
-            override fun onPositionChange(position: Int) {
-                Log.d(TAG, "currentPosition : $position")
-            }
-
-            override fun onScroll(dx: Int, dy: Int) {
-                Log.d(TAG, "onScroll dx : $dx -- dy : $dx")
-            }
-        })
+initSliderComponent(getFakeData())
+    }
 
 
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rec2))
-        sliderComponent.add(SampleModel(R.drawable.ic_rectangle_1))
+
+    private val clickOnSlider = object : SampleAdapter.OnItemClickListener {
+        override fun onSliderItemClick(position: Int, model: SampleModel) {
+            slider_view.smoothScrollToPosition(position)
+        }
+    }
+    private fun initSliderComponent(testList:List<SampleModel>) {
+        val sliderLayoutManager = SliderLayoutManager(this, SliderRecyclerView.HORIZONTAL, true)
+
+            val sliderAdapter = SampleAdapter(clickOnSlider)
+            slider_view.sliderLayoutManager = sliderLayoutManager
+            slider_view.adapter = sliderAdapter
+            slider_view.setCalculateCenterThreshold(true)
+            sliderAdapter.addAll(testList.toMutableList())
 
 
+
+    }
+    override fun onStart() {
+        super.onStart()
+        slider_view.addSliderListener(sliderListener)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        slider_view.removeSliderListener()
+    }
+    private val sliderListener: SliderListener = object :
+        SliderListener {
+        override fun onPositionChange(position: Int) {
+            Log.d(TAG, "onPositionChange: $position")
+        }
+    }
+
+    private fun getFakeData():List<SampleModel> {
+        val sliderList = ArrayList<SampleModel>()
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rectangle_1))
+        return sliderList.reversed()
     }
 }

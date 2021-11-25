@@ -1,77 +1,79 @@
 package ebnrdwan.slider
 
 import alirezat775.sliderview.R
-import ebnrdwan.lib.slider.SliderAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
+import ebnrdwan.lib.slider.BaseSliderAdapter
 import kotlinx.android.synthetic.main.item_slider.view.*
-import kotlinx.android.synthetic.main.item_empty_slider.view.*
 
-class SampleAdapter : SliderAdapter() {
 
-    private val EMPTY_ITEM = 0
-    private val NORMAL_ITEM = 1
+class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderAdapter() {
 
-    private var vh: SliderViewHolder? = null
-    var onClick: OnClick? = null
+    private val _emptyItem = 0
+    private val _normalItem = 1
 
-    fun setOnClickListener(onClick: OnClick?) {
-        this.onClick = onClick
+
+    private var vh: BaseSliderViewHolder? = null
+
+    init {
+        enableRefineDimensions(true)
+
+    }
+    fun setOnClickListener(onItemClickListener: OnItemClickListener?) {
+        this.onItemClickListener = onItemClickListener
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (getItems()[position]) {
-            is EmptySampleModel -> EMPTY_ITEM
-            else -> NORMAL_ITEM
+        return when (getItemAtPosition(position)) {
+            is EmptySliderModel -> _emptyItem
+            else -> _normalItem
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SliderViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseSliderViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return if (viewType == NORMAL_ITEM) {
+        return if (viewType == _normalItem) {
             val v = inflater.inflate(R.layout.item_slider, parent, false)
-            vh = MyViewHolder(v)
-            vh as MyViewHolder
+            vh = SliderViewHolder(v)
+            vh as SliderViewHolder
         } else {
             val v = inflater.inflate(R.layout.item_empty_slider, parent, false)
-            vh = EmptyMyViewHolder(v)
-            vh as EmptyMyViewHolder
+            vh = EmptyViewHolder(v)
+            vh as EmptyViewHolder
         }
     }
 
-    override fun onBindViewHolder(holder: SliderViewHolder, position: Int) {
-        when (holder) {
-            is MyViewHolder -> {
-                vh = holder
+    override fun onBindViewHolder(holderBase: BaseSliderViewHolder, position: Int) {
+        when (holderBase) {
+            is SliderViewHolder -> {
+                vh = holderBase
                 val model = getItems()[position] as SampleModel
-                (vh as MyViewHolder).icon.setImageResource(model.imageId())
-            }
-            else -> {
-                vh = holder
-                val model = getItems()[position] as EmptySampleModel
-                (vh as EmptyMyViewHolder).titleEmpty.text = model.getText()
+                (vh as SampleAdapter.SliderViewHolder).icon.setImageResource(model.imageId())
             }
         }
     }
 
-    inner class MyViewHolder(itemView: View) : SliderViewHolder(itemView) {
+    inner class SliderViewHolder(itemView: View) : BaseSliderViewHolder(itemView) {
 
         var icon: ImageView = itemView.imgContinent
 
         init {
-            icon.setOnClickListener { onClick?.click(getItems()[adapterPosition] as SampleModel) }
+            itemView.setOnClickListener {
+                onItemClickListener?.onSliderItemClick(
+                    adapterPosition,
+                    getItemAtPosition(adapterPosition) as SampleModel
+                )
+            }
         }
 
     }
 
-    inner class EmptyMyViewHolder(itemView: View) : SliderViewHolder(itemView) {
-        var titleEmpty: TextView = itemView.item_empty_text
+    inner class EmptyViewHolder(itemView: View) : BaseSliderViewHolder(itemView) {
     }
 
-    interface OnClick {
-        fun click(model: SampleModel)
+    interface OnItemClickListener {
+        fun onSliderItemClick(position: Int, model: SampleModel)
     }
 }

@@ -1,4 +1,4 @@
-package ebnrdwan.lib.slider
+package ebnrdwan.lib.slider.slider_listener
 
 
 interface SliderListener {
@@ -11,5 +11,7 @@ interface SliderListener {
      * @param dx delta x
      * @param dy delta y
      */
-    fun onScroll(dx: Int, dy: Int)
+    fun onScroll(dx: Int, dy: Int){
+
+    }
 }

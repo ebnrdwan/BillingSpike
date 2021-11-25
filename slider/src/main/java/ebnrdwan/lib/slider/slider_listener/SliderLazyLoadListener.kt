@@ -1,5 +1,6 @@
-package ebnrdwan.lib.slider
+package ebnrdwan.lib.slider.slider_listener
 
+import ebnrdwan.lib.slider.SliderRecyclerView
 
 
 interface SliderLazyLoadListener {

@@ -1,12 +1,14 @@
 package ebnrdwan.lib.slider
 
-import ebnrdwan.lib.slider.helper.ViewHelper
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import ebnrdwan.lib.slider.ISliderModel
+import ebnrdwan.lib.slider.helper.ViewHelper
 import java.util.*
+import kotlin.math.roundToInt
 
 
-abstract class SliderAdapter : RecyclerView.Adapter<SliderAdapter.SliderViewHolder>() {
+abstract class BaseSliderAdapter : RecyclerView.Adapter<BaseSliderAdapter.BaseSliderViewHolder>() {
 
     companion object {
         const val REMOVE = 1
@@ -14,17 +16,18 @@ abstract class SliderAdapter : RecyclerView.Adapter<SliderAdapter.SliderViewHold
     }
 
     private lateinit var recyclerView: RecyclerView
-    private var enableSlider = false
+    private var refineDimensions = false
+     var circularSlider = false
     private var items: MutableList<ISliderModel> = ArrayList()
 
-    private fun imageOption(view: View) {
-        view.layoutParams.width = Math.round(ViewHelper.getScreenWidth().toDouble()).toInt()
-        view.layoutParams.height = Math.round(view.layoutParams.width * 0.60).toInt()
+    private fun refineViewWidth(view: View) {
+        view.layoutParams.width = (ViewHelper.getScreenWidth().toDouble() / 2.8).roundToInt()
         view.requestLayout()
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return if (circularSlider) Int.MAX_VALUE
+        else items.size
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -42,6 +45,14 @@ abstract class SliderAdapter : RecyclerView.Adapter<SliderAdapter.SliderViewHold
      */
     fun getItems(): MutableList<ISliderModel> {
         return items
+    }
+
+    fun getItemAtPosition(position: Int): ISliderModel {
+        return if (circularSlider && position >= items.size ) {
+            items[(position) % items.size]
+        } else{
+            items[position]
+        }
     }
 
     fun operation(item: ISliderModel, operation: Int) {
@@ -68,17 +79,18 @@ abstract class SliderAdapter : RecyclerView.Adapter<SliderAdapter.SliderViewHold
         getItems().remove(item)
     }
 
-    private fun isEnableSlider(): Boolean {
-        return enableSlider
+
+    private fun isRefinedDimensions(): Boolean {
+        return refineDimensions
     }
 
-    fun enableSlider(enableSlider: Boolean) {
-        this.enableSlider = enableSlider
+    fun enableRefineDimensions(enableSlider: Boolean) {
+        this.refineDimensions = enableSlider
     }
 
-    open inner class SliderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    open inner class BaseSliderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         init {
-            if (isEnableSlider()) imageOption(itemView)
+            if (isRefinedDimensions()) refineViewWidth(itemView)
         }
     }
 }

@@ -1,11 +1,11 @@
 package ebnrdwan.lib.slider.helper
 
-import ebnrdwan.lib.slider.SliderLayoutManager
+import ebnrdwan.lib.slider.BaseSliderLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-abstract class EndlessListener(private val sliderLayoutManager: SliderLayoutManager) :
+abstract class EndlessListener(private val baseSliderLayoutManager: BaseSliderLayoutManager) :
     RecyclerView.OnScrollListener() {
 
     private val visibleThreshold = 5
@@ -27,8 +27,8 @@ abstract class EndlessListener(private val sliderLayoutManager: SliderLayoutMana
     }
 
     override fun onScrolled(view: RecyclerView, dx: Int, dy: Int) {
-        val lastVisibleItemPosition = (sliderLayoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-        val totalItemCount = sliderLayoutManager.itemCount
+        val lastVisibleItemPosition = (baseSliderLayoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+        val totalItemCount = baseSliderLayoutManager.itemCount
 
         if (totalItemCount < previousTotalItemCount) {
             currentPage = startingPageIndex

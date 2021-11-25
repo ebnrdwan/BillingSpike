@@ -9,12 +9,18 @@ import android.view.View
 import androidx.annotation.IntDef
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import ebnrdwan.lib.slider.helper.EndlessListener
+import ebnrdwan.lib.slider.helper.ViewHelper
+import ebnrdwan.lib.slider.slider_listener.SliderLazyLoadListener
+import ebnrdwan.lib.slider.slider_listener.SliderListener
 import kotlin.math.abs
 
 class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     RecyclerView(context, attrs, defStyle) {
 
-    var listener: SliderListener? = null
+
+    var sliderListener: SliderListener? = null
+    var sliderLazyLoadListener: SliderLazyLoadListener? = null
     private var velocityTracker: VelocityTracker? = null
     var currentPosition: Int = 0
     private var actionDown = true
@@ -29,7 +35,7 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
         set(anchor) {
             if (this.anchor != anchor) {
                 field = anchor
-                manager.anchor = anchor
+                sliderLayoutManager.anchor = anchor
                 requestLayout()
             }
         }
@@ -43,13 +49,13 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
 
     private val isTrustLayout: Boolean
         get() {
-            if (isRTL && manager.reverseLayout) {
+            if (isRTL && sliderLayoutManager.reverseLayout) {
                 return true
-            } else if (!isRTL && manager.reverseLayout) {
+            } else if (!isRTL && sliderLayoutManager.reverseLayout) {
                 return false
-            } else if (isRTL && !manager.reverseLayout) {
+            } else if (isRTL && !sliderLayoutManager.reverseLayout) {
                 return false
-            } else if (!isRTL && !manager.reverseLayout) {
+            } else if (!isRTL && !sliderLayoutManager.reverseLayout) {
                 return true
             }
             return false
@@ -58,8 +64,12 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
     /**
      * @return layoutManager
      */
-    val manager: SliderLayoutManager
-        get() = layoutManager as SliderLayoutManager
+    var sliderLayoutManager: BaseSliderLayoutManager
+        get() = layoutManager as BaseSliderLayoutManager
+        set(value) {
+            layoutManager = value
+            initializeManager(value.orientation)
+        }
 
     /**
      * @param adapter the new adapter to set, or null to set no adapter
@@ -130,7 +140,7 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         actionDown = true
                         if (velocityTracker != null) {
-                            when (manager.orientation) {
+                            when (sliderLayoutManager.orientation) {
                                 HORIZONTAL -> if (velocityTracker!!.xVelocity <= 0) {
                                     if (!isTrustLayout)
                                         scrolling(-1)// rtl or reverse mode
@@ -143,12 +153,12 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
                                         scrolling(-1)//scroll to left
                                 }
                                 VERTICAL -> if (velocityTracker!!.yVelocity <= 0) {
-                                    if (manager.getReverseLayout())
+                                    if (sliderLayoutManager.getReverseLayout())
                                         scrolling(-1)// rtl or reverse mode
                                     else
                                         scrolling(1)//scroll to up
                                 } else if (velocityTracker!!.yVelocity > 0) {
-                                    if (manager.getReverseLayout())
+                                    if (sliderLayoutManager.getReverseLayout())
                                         scrolling(1)// rtl or reverse mode
                                     else
                                         scrolling(-1)//scroll to down
@@ -173,8 +183,8 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
      */
     override fun onScrolled(dx: Int, dy: Int) {
         super.onScrolled(dx, dy)
-        if (listener != null)
-            listener!!.onScroll(dx, dy)
+        if (sliderListener != null)
+            sliderListener!!.onScroll(dx, dy)
     }
 
     /**
@@ -191,16 +201,18 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
     override fun onScrollStateChanged(state: Int) {
         super.onScrollStateChanged(state)
         if (state == SCROLL_STATE_IDLE) {
-            scrolling(0)
-            if (isAutoScroll) {
-                getScheduler()?.start()
-            }
-
             if (currentPosition == 0)
                 reverseLoop = true
             else if (currentPosition == adapter!!.itemCount - 1)
                 reverseLoop = false
         }
+    }
+
+    override fun smoothScrollToPosition(position: Int) {
+
+        post { super.smoothScrollToPosition(position) }
+            sliderListener?.onPositionChange(position)
+            currentPosition = position
     }
 
     /**
@@ -215,10 +227,9 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
                 centerViewPosition = adapter!!.itemCount - 1
 
             smoothScrollToPosition(centerViewPosition)
-
-            if (listener != null)
-                listener!!.onPositionChange(centerViewPosition)
-
+            if (sliderListener != null) {
+                sliderListener!!.onPositionChange(centerViewPosition)
+            }
             currentPosition = centerViewPosition
         }
     }
@@ -227,14 +238,14 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
      * @return position fit in screen for parent list
      */
     private val parentAnchor: Int
-        get() = (if (manager.orientation == VERTICAL) height else width) / 2
+        get() = (if (sliderLayoutManager.orientation == VERTICAL) height else width) / 2
 
     /**
      * @param view item view
      * @return position fit in screen specific view in parent
      */
     private fun getViewAnchor(view: View?): Int {
-        return if (manager.orientation == VERTICAL) view?.top!! + view.height / 2
+        return if (sliderLayoutManager.orientation == VERTICAL) view?.top!! + view.height / 2
         else view?.left!! + view.width / 2
     }
 
@@ -243,16 +254,17 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
      */
     private fun calculateSnapViewPosition(): Int {
         val parentAnchor = parentAnchor
-        val lastVisibleItemPosition = manager.findLastVisibleItemPosition()
-        val firstVisibleItemPosition = manager.findFirstVisibleItemPosition()
+        val lastVisibleItemPosition = sliderLayoutManager.findLastVisibleItemPosition()
+        val firstVisibleItemPosition = sliderLayoutManager.findFirstVisibleItemPosition()
 
         if (firstVisibleItemPosition > -1) {
-            val currentViewClosestToAnchor = manager.findViewByPosition(firstVisibleItemPosition)
+            val currentViewClosestToAnchor =
+                sliderLayoutManager.findViewByPosition(firstVisibleItemPosition)
             var currentViewClosestToAnchorDistance = parentAnchor - getViewAnchor(currentViewClosestToAnchor)
             var currentViewClosestToAnchorPosition = firstVisibleItemPosition
 
             for (i in firstVisibleItemPosition + 1..lastVisibleItemPosition) {
-                val view = manager.findViewByPosition(i)
+                val view = sliderLayoutManager.findViewByPosition(i)
                 val distanceToCenter = parentAnchor - getViewAnchor(view)
                 if (abs(distanceToCenter) < abs(currentViewClosestToAnchorDistance)) {
                     currentViewClosestToAnchorPosition = i
@@ -285,6 +297,80 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
             if (scrolling) start()
         }
     }
+
+    fun addSliderListener(listener: SliderListener) {
+        this.sliderListener = listener
+    }
+
+    fun removeSliderListener() {
+        this.sliderListener = null
+    }
+
+    /**
+     * @param centerThreshold enable calculating the distance from center point threshold item
+     */ /*Rec*/
+    fun setCalculateCenterThreshold(centerThreshold: Boolean) {
+        sliderLayoutManager.setCalculateCenterThreshold(centerThreshold)
+    }
+
+
+    /**
+     * @param scrollSpeed change speed scrolling item
+     */
+    fun scrollSpeed(scrollSpeed: Float) {
+        sliderLayoutManager.setScrollSpeed(scrollSpeed)
+    }
+
+
+    /**
+     * lazyLoad load more item with infinity scroll.
+     * for enable this feature should be pass true value in first parameter
+     * and pass child of SliderLazyLoadListener for second parameter
+     * for disable this feature should be pass false value in first argument
+     * and pass null for second parameter
+     *
+     * @param lazy this flag enable or disable lazy loading view
+     * @param sliderLazyLoadListener listener when need call load more item
+     */
+    fun lazyLoad(lazy: Boolean, sliderLazyLoadListener: SliderLazyLoadListener?) {
+        this.sliderLazyLoadListener = sliderLazyLoadListener
+
+        if (lazy)
+            this.addOnScrollListener(object : EndlessListener(sliderLayoutManager) {
+                override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
+                    sliderLazyLoadListener?.onLoadMore(
+                        page,
+                        totalItemsCount,
+                        view as SliderRecyclerView
+                    )
+                }
+            })
+        else
+            this.clearOnScrollListeners()
+    }
+
+    /**
+     * @param orientation set VERTICAL/HORIZONTAL
+     */
+    private fun initializeManager(
+        @SliderRecyclerView.SliderOrientation orientation: Int,
+        enablePadding: Boolean = true
+    ) {
+
+        this.layoutManager = sliderLayoutManager
+        val padding: Int
+        when (orientation) {
+            HORIZONTAL -> {
+                padding = if (enablePadding) ViewHelper.getScreenWidth() / 4 else 1
+                this.setPadding(padding, 0, padding, 0)
+            }
+            SliderRecyclerView.VERTICAL -> {
+                padding = if (enablePadding) ViewHelper.getScreenHeight() / 4 else 1
+                this.setPadding(0, padding, 0, padding)
+            }
+        }
+    }
+
 
     companion object {
 
