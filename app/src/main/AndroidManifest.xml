@@ -10,6 +10,10 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity android:name="ebnrdwan.slider.MainActivity">
+
+        </activity>
+
+        <activity android:name="ebnrdwan.slider.BarsSpikeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
