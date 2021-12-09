@@ -20,33 +20,14 @@ initSliderComponent(getFakeData())
     }
 
 
-
-    private val clickOnSlider = object : SampleAdapter.OnItemClickListener {
-        override fun onSliderItemClick(position: Int, model: SampleModel) {
-            slider_view.smoothScrollToPosition(position)
-        }
-    }
     private fun initSliderComponent(testList:List<SampleModel>) {
-        val sliderLayoutManager = SliderLayoutManager(this, SliderRecyclerView.HORIZONTAL, true)
-
-            val sliderAdapter = SampleAdapter(clickOnSlider)
-            slider_view.sliderLayoutManager = sliderLayoutManager
-            slider_view.adapter = sliderAdapter
-            slider_view.setCalculateCenterThreshold(true)
-            sliderAdapter.addAll(testList.toMutableList())
+        lifecycle.addObserver(vfGraph)
+        vfGraph.init(testList)
 
 
 
     }
-    override fun onStart() {
-        super.onStart()
-        slider_view.addSliderListener(sliderListener)
-    }
 
-    override fun onStop() {
-        super.onStop()
-        slider_view.removeSliderListener()
-    }
     private val sliderListener: SliderListener = object :
         SliderListener {
         override fun onPositionChange(position: Int) {
