@@ -45,6 +45,7 @@ initSliderComponent(getFakeData())
         sliderList.add(SampleModel(R.drawable.ic_rec2))
         sliderList.add(SampleModel(R.drawable.ic_rec2))
         sliderList.add(SampleModel(R.drawable.ic_rec2))
+        sliderList.add(SampleModel(R.drawable.ic_rec2))
         sliderList.add(SampleModel(R.drawable.ic_rectangle_1))
         return sliderList.reversed()
     }

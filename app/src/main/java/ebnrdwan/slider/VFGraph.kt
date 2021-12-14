@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -18,12 +19,12 @@ class VFGraph @JvmOverloads constructor(
 
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(mContext, attrs, defStyleAttr), LifecycleObserver {
-    var root: View = inflate(mContext, R.layout.voda_graph_layout, null)
-
+) : ConstraintLayout(mContext, attrs, defStyleAttr), LifecycleObserver {
+  var root: View = inflate(mContext, R.layout.voda_graph_layout, this)
 
 
     fun init(testList: List<SampleModel>) {
+
         initSliderComponent(testList)
     }
 
