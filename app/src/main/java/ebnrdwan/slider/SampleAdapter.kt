@@ -13,12 +13,12 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
 
     private val _emptyItem = 0
     private val _normalItem = 1
-
+private var sliderPosition=-1
 
     private var vh: BaseSliderViewHolder? = null
 
     init {
-        enableRefineDimensions(true)
+        enableRefineDimensions(false)
 
     }
     fun setOnClickListener(onItemClickListener: OnItemClickListener?) {
@@ -32,6 +32,10 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
         }
     }
 
+fun setSliderPosition(position: Int){
+    this.sliderPosition=position
+    notifyDataSetChanged()
+}
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseSliderViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == _normalItem) {
@@ -51,6 +55,9 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
                 vh = holderBase
                 val model = getItems()[position] as SampleModel
                 (vh as SampleAdapter.SliderViewHolder).icon.setImageResource(model.imageId())
+                if (position==sliderPosition){
+                    (vh as SampleAdapter.SliderViewHolder).indicator.visibility=View.VISIBLE
+                }else     (vh as SampleAdapter.SliderViewHolder).indicator.visibility=View.GONE
             }
         }
     }
@@ -58,6 +65,8 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
     inner class SliderViewHolder(itemView: View) : BaseSliderViewHolder(itemView) {
 
         var icon: ImageView = itemView.imgContinent
+        var indicator: View = itemView.selectionIndicator
+
 
         init {
             itemView.setOnClickListener {

@@ -25,8 +25,6 @@ open class SliderLayoutManager(
 
 
     override fun onCenterThresholdChange(child: View, centerThreshold: Float) {
-        scaleView(child, centerThreshold)
-        fadeBorder(child, centerThreshold)
         fadeView(child, centerThreshold, reduceFadeBy)
     }
 

@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import ebnrdwan.lib.slider.BaseSliderAdapter
 import ebnrdwan.lib.slider.SliderLayoutManager
 import ebnrdwan.lib.slider.SliderRecyclerView
 import ebnrdwan.lib.slider.slider_listener.SliderListener
@@ -21,7 +22,7 @@ class VFGraph @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(mContext, attrs, defStyleAttr), LifecycleObserver {
   var root: View = inflate(mContext, R.layout.voda_graph_layout, this)
-
+lateinit var sliderAdapter: SampleAdapter
 
     fun init(testList: List<SampleModel>) {
 
@@ -40,7 +41,7 @@ class VFGraph @JvmOverloads constructor(
 
     private fun initSliderComponent(testList: List<SampleModel>) {
         val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true)
-        val sliderAdapter = SampleAdapter(clickOnSlider)
+         sliderAdapter = SampleAdapter(clickOnSlider)
         root.slider_view.sliderLayoutManager = sliderLayoutManager
         root.slider_view.adapter = sliderAdapter
         root.slider_view.setCalculateCenterThreshold(true)
@@ -53,6 +54,8 @@ class VFGraph @JvmOverloads constructor(
         SliderListener {
         override fun onPositionChange(position: Int) {
             Log.d("GRAPH", "onPositionChange: $position")
+            sliderAdapter.setSliderPosition(position)
+
         }
     }
 
