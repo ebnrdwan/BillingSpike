@@ -8,6 +8,7 @@
         tools:context="ebnrdwan.slider.MainActivity">
 
     <ebnrdwan.slider.VFGraph
+        android:elevation="4dp"
         android:id="@+id/vfGraph"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,8 +1,8 @@
 package ebnrdwan.lib.slider
 
 import android.view.View
+import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
-import ebnrdwan.lib.slider.ISliderModel
 import ebnrdwan.lib.slider.helper.ViewHelper
 import java.util.*
 import kotlin.math.roundToInt
@@ -17,7 +17,7 @@ abstract class BaseSliderAdapter : RecyclerView.Adapter<BaseSliderAdapter.BaseSl
 
     private lateinit var recyclerView: RecyclerView
     private var refineDimensions = false
-     var circularSlider = false
+    var circularSlider = false
     private var items: MutableList<ISliderModel> = ArrayList()
 
     private fun refineViewWidth(view: View) {
@@ -48,9 +48,9 @@ abstract class BaseSliderAdapter : RecyclerView.Adapter<BaseSliderAdapter.BaseSl
     }
 
     fun getItemAtPosition(position: Int): ISliderModel {
-        return if (circularSlider && position >= items.size ) {
+        return if (circularSlider && position >= items.size) {
             items[(position) % items.size]
-        } else{
+        } else {
             items[position]
         }
     }
@@ -62,7 +62,8 @@ abstract class BaseSliderAdapter : RecyclerView.Adapter<BaseSliderAdapter.BaseSl
         }
     }
 
-    fun addAll(items: MutableList<ISliderModel>) {
+    @CallSuper
+    open fun addAll(items: MutableList<ISliderModel>) {
         this.items = items
         notifyDataSetChanged()
     }
@@ -80,7 +81,7 @@ abstract class BaseSliderAdapter : RecyclerView.Adapter<BaseSliderAdapter.BaseSl
     }
 
 
-    private fun isRefinedDimensions(): Boolean {
+     fun isRefinedDimensions(): Boolean {
         return refineDimensions
     }
 

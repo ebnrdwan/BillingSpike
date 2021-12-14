@@ -1,11 +1,14 @@
 package ebnrdwan.slider
 
 import alirezat775.sliderview.R
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import ebnrdwan.lib.slider.BaseSliderAdapter
+import ebnrdwan.lib.slider.ISliderModel
 import kotlinx.android.synthetic.main.item_slider.view.*
 
 
@@ -13,14 +16,14 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
 
     private val _emptyItem = 0
     private val _normalItem = 1
-private var sliderPosition=-1
+    private var sliderPosition = -1
 
     private var vh: BaseSliderViewHolder? = null
 
     init {
         enableRefineDimensions(false)
-
     }
+
     fun setOnClickListener(onItemClickListener: OnItemClickListener?) {
         this.onItemClickListener = onItemClickListener
     }
@@ -32,10 +35,19 @@ private var sliderPosition=-1
         }
     }
 
-fun setSliderPosition(position: Int){
-    this.sliderPosition=position
-    notifyDataSetChanged()
-}
+    override fun addAll(items: MutableList<ISliderModel>) {
+        if (!isRefinedDimensions()) {
+            items.add(0, EmptySliderModel())
+            items.add(EmptySliderModel())
+        }
+        super.addAll(items)
+    }
+
+    fun setSliderPosition(position: Int) {
+        this.sliderPosition = position
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseSliderViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == _normalItem) {
@@ -55,9 +67,11 @@ fun setSliderPosition(position: Int){
                 vh = holderBase
                 val model = getItems()[position] as SampleModel
                 (vh as SampleAdapter.SliderViewHolder).icon.setImageResource(model.imageId())
-                if (position==sliderPosition){
-                    (vh as SampleAdapter.SliderViewHolder).indicator.visibility=View.VISIBLE
-                }else     (vh as SampleAdapter.SliderViewHolder).indicator.visibility=View.GONE
+                (vh as SampleAdapter.SliderViewHolder).month.text= model.month
+                Log.d("onBindViewHolder", "position ${position}|| $sliderPosition refined ${isRefinedDimensions()} ")
+                if (position == sliderPosition) {
+                    (vh as SampleAdapter.SliderViewHolder).indicator.visibility = View.VISIBLE
+                } else (vh as SampleAdapter.SliderViewHolder).indicator.visibility = View.GONE
             }
         }
     }
@@ -66,6 +80,7 @@ fun setSliderPosition(position: Int){
 
         var icon: ImageView = itemView.imgContinent
         var indicator: View = itemView.selectionIndicator
+        var month: TextView = itemView.txtMonth
 
 
         init {

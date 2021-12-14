@@ -9,7 +9,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import ebnrdwan.lib.slider.BaseSliderAdapter
 import ebnrdwan.lib.slider.SliderLayoutManager
 import ebnrdwan.lib.slider.SliderRecyclerView
 import ebnrdwan.lib.slider.slider_listener.SliderListener
@@ -21,11 +20,11 @@ class VFGraph @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ConstraintLayout(mContext, attrs, defStyleAttr), LifecycleObserver {
-  var root: View = inflate(mContext, R.layout.voda_graph_layout, this)
-lateinit var sliderAdapter: SampleAdapter
-
+    var root: View = inflate(mContext, R.layout.voda_graph_layout, this)
+    lateinit var sliderAdapter: SampleAdapter
+    lateinit var itemsList: List<SampleModel>
     fun init(testList: List<SampleModel>) {
-
+        this.itemsList = testList
         initSliderComponent(testList)
     }
 
@@ -41,7 +40,7 @@ lateinit var sliderAdapter: SampleAdapter
 
     private fun initSliderComponent(testList: List<SampleModel>) {
         val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true)
-         sliderAdapter = SampleAdapter(clickOnSlider)
+        sliderAdapter = SampleAdapter(clickOnSlider)
         root.slider_view.sliderLayoutManager = sliderLayoutManager
         root.slider_view.adapter = sliderAdapter
         root.slider_view.setCalculateCenterThreshold(true)
@@ -55,7 +54,26 @@ lateinit var sliderAdapter: SampleAdapter
         override fun onPositionChange(position: Int) {
             Log.d("GRAPH", "onPositionChange: $position")
             sliderAdapter.setSliderPosition(position)
+            handleScrollingToEmptyItems(position)
 
+        }
+    }
+
+    /** @param position current selected item position
+     * {Case position=0 --> user scrolling to first empty item which is invisible
+     * handling: scroll back to first visible item}
+     * {Case position > itemsList.size --> user scrolling to last empty item which is invisible
+     * handling: scroll back to last visible item}
+     * */
+    private fun handleScrollingToEmptyItems(position: Int) {
+
+        if (position == 0) {
+            slider_view.smoothScrollToPosition(1)
+            return
+        }
+        if (position > itemsList.size) {
+            slider_view.smoothScrollToPosition(itemsList.size)
+            return
         }
     }
 
