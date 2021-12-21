@@ -12,7 +12,8 @@ import ebnrdwan.lib.slider.ISliderModel
 import kotlinx.android.synthetic.main.item_slider.view.*
 
 
-class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderAdapter() {
+class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMargin: Int) :
+    BaseSliderAdapter() {
 
     private val _emptyItem = 0
     private val _normalItem = 1
@@ -47,11 +48,12 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
         this.sliderPosition = position
         notifyDataSetChanged()
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseSliderViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == _normalItem) {
             val v = inflater.inflate(R.layout.item_slider, parent, false)
-            GraphViewHolder(v, isRefinedDimensions())
+            GraphViewHolder(v, isRefinedDimensions(),baseLineMargin)
 
         } else {
             val v = inflater.inflate(R.layout.item_empty_slider, parent, false)
@@ -67,13 +69,15 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
         }
     }
 
-    inner class GraphViewHolder(itemView: View, isRefinedDimensions: Boolean) : BaseSliderViewHolder(itemView, isRefinedDimensions) {
+    inner class GraphViewHolder(itemView: View, isRefinedDimensions: Boolean,val margin:Int) :
+        BaseSliderViewHolder(itemView, isRefinedDimensions) {
 
         var bar: ImageView = itemView.imgContinent
         var indicator: View = itemView.selectionIndicator
         var month: TextView = itemView.txtMonth
 
         override fun bind(model: ISliderModel, sliderPosition: Int) {
+            itemView.barBaseLine.setMargins(bottom = margin)
             if (model is GraphModel) {
                 setItemData(model)
                 setItemListener(model)
@@ -83,10 +87,10 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
 
         private fun setIndicatorState(sliderPosition: Int) {
             if (adapterPosition == sliderPosition) {
-                month.setTextColor(ContextCompat.getColor(itemView.context,R.color.colorAccent))
+                month.setTextColor(ContextCompat.getColor(itemView.context, R.color.colorAccent))
                 indicator?.visibility = View.VISIBLE
             } else {
-                month.setTextColor(ContextCompat.getColor(itemView.context,R.color.colorPrimary))
+                month.setTextColor(ContextCompat.getColor(itemView.context, R.color.colorPrimary))
 
                 indicator?.visibility = View.GONE
             }

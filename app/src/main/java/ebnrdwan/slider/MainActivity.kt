@@ -13,31 +13,29 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-initSliderComponent(getFakeData())
+        initSliderComponent(getFakeData())
     }
 
-
-    private fun initSliderComponent(testList:List<GraphModel>) {
+    private fun initSliderComponent(testList: List<GraphModel>) {
         lifecycle.addObserver(vfGraph)
         vfGraph.init(testList)
 
 
-
     }
 
-    private fun getFakeData():List<GraphModel> {
+    private fun getFakeData(): List<GraphModel> {
         val sliderList = ArrayList<GraphModel>()
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"Jan"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"feb"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"mar"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"apr"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"may"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"jun"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"jul"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"aug"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"oct"))
-        sliderList.add(GraphModel(R.drawable.ic_rec2,"nov"))
-        sliderList.add(GraphModel(R.drawable.ic_rectangle_1,"dec"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "Jan", 100))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "feb", 50))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "mar", 50))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "apr", 100))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "may", -50))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "jun", -25))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "jul", 100))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "aug", 100))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "oct", 100))
+        sliderList.add(GraphModel(R.drawable.ic_rec2, "nov", 100))
+        sliderList.add(GraphModel(R.drawable.ic_rectangle_1, "dec", 100))
         return sliderList.reversed()
     }
 }
