@@ -6,8 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/chartSpike"
     android:layout_width="match_parent"
-    android:layout_height="230dp"
-
+    android:layout_height="@dimen/graph_height"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
@@ -15,7 +14,7 @@
     <View
         android:id="@+id/topLine"
         android:layout_width="match_parent"
-        android:layout_height="5dp"
+        android:layout_height="@dimen/dashed_line_height"
         android:background="@drawable/line_dash"
         android:layerType="software"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,7 +25,7 @@
     <View
         android:id="@+id/middleLine"
         android:layout_width="match_parent"
-        android:layout_height="5dp"
+        android:layout_height="@dimen/dashed_line_height"
         android:layout_marginTop="20dp"
         android:background="@drawable/line_dash"
         android:layerType="software"
@@ -39,9 +38,9 @@
     <View
         android:id="@+id/baseLine"
         android:layout_width="match_parent"
-        android:layout_height="5dp"
+        android:layout_height="@dimen/dashed_line_height"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/line_dash"
         android:layerType="software"
         app:layout_constraintBottom_toTopOf="@id/bottomBar"
@@ -52,31 +51,33 @@
     <View
         android:id="@+id/bottomLine"
         android:layout_width="match_parent"
-        android:layout_height="5dp"
+        android:layout_height="@dimen/dashed_line_height"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/line_dash"
         android:layerType="software"
         app:layout_constraintBottom_toTopOf="@id/bottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ebnrdwan.lib.slider.SliderRecyclerView
-        android:id="@+id/slider_view"
-        tools:listitem="@layout/item_slider"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_margin="8dp"
-        android:background="@android:color/transparent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+
 
     <View
         android:id="@+id/bottomBar"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="@dimen/graph_bottom_margin"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
+
+    <ebnrdwan.lib.slider.SliderRecyclerView
+        android:id="@+id/slider_view"
+        tools:listitem="@layout/item_slider"
+        tools:itemCount="5"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/graph_height"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

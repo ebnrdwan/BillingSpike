@@ -1,4 +1,4 @@
-package ebnrdwan.slider
+package ebnrdwan.slider.vfGraph
 
 import alirezat775.sliderview.R
 import android.content.Context
@@ -22,8 +22,8 @@ class VFGraph @JvmOverloads constructor(
 ) : ConstraintLayout(mContext, attrs, defStyleAttr), LifecycleObserver {
     var root: View = inflate(mContext, R.layout.voda_graph_layout, this)
     lateinit var sliderAdapter: SampleAdapter
-    lateinit var itemsList: List<SampleModel>
-    fun init(testList: List<SampleModel>) {
+    lateinit var itemsList: List<GraphModel>
+    fun init(testList: List<GraphModel>) {
         this.itemsList = testList
         initSliderComponent(testList)
     }
@@ -38,15 +38,13 @@ class VFGraph @JvmOverloads constructor(
         root.slider_view.removeSliderListener()
     }
 
-    private fun initSliderComponent(testList: List<SampleModel>) {
+    private fun initSliderComponent(testList: List<GraphModel>) {
         val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true)
         sliderAdapter = SampleAdapter(clickOnSlider)
         root.slider_view.sliderLayoutManager = sliderLayoutManager
         root.slider_view.adapter = sliderAdapter
         root.slider_view.setCalculateCenterThreshold(true)
         sliderAdapter.addAll(testList.toMutableList())
-
-
     }
 
     private val sliderListener: SliderListener = object :
@@ -78,7 +76,7 @@ class VFGraph @JvmOverloads constructor(
     }
 
     private val clickOnSlider = object : SampleAdapter.OnItemClickListener {
-        override fun onSliderItemClick(position: Int, model: SampleModel) {
+        override fun onSliderItemClick(position: Int, model: GraphModel) {
             slider_view.smoothScrollToPosition(position)
         }
     }

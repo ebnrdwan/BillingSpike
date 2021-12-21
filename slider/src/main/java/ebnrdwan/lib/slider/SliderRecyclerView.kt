@@ -258,8 +258,7 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
         val firstVisibleItemPosition = sliderLayoutManager.findFirstVisibleItemPosition()
 
         if (firstVisibleItemPosition > -1) {
-            val currentViewClosestToAnchor =
-                sliderLayoutManager.findViewByPosition(firstVisibleItemPosition)
+            val currentViewClosestToAnchor = sliderLayoutManager.findViewByPosition(firstVisibleItemPosition)
             var currentViewClosestToAnchorDistance = parentAnchor - getViewAnchor(currentViewClosestToAnchor)
             var currentViewClosestToAnchorPosition = firstVisibleItemPosition
 

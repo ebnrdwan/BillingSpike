@@ -2,11 +2,8 @@ package ebnrdwan.slider
 
 import alirezat775.sliderview.R
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import ebnrdwan.lib.slider.SliderLayoutManager
-import ebnrdwan.lib.slider.SliderRecyclerView
-import ebnrdwan.lib.slider.slider_listener.SliderListener
+import ebnrdwan.slider.vfGraph.GraphModel
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -20,7 +17,7 @@ initSliderComponent(getFakeData())
     }
 
 
-    private fun initSliderComponent(testList:List<SampleModel>) {
+    private fun initSliderComponent(testList:List<GraphModel>) {
         lifecycle.addObserver(vfGraph)
         vfGraph.init(testList)
 
@@ -28,26 +25,19 @@ initSliderComponent(getFakeData())
 
     }
 
-    private val sliderListener: SliderListener = object :
-        SliderListener {
-        override fun onPositionChange(position: Int) {
-            Log.d(TAG, "onPositionChange: $position")
-        }
-    }
-
-    private fun getFakeData():List<SampleModel> {
-        val sliderList = ArrayList<SampleModel>()
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"Jan"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"feb"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"mar"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"apr"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"may"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"jun"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"jul"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"aug"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"oct"))
-        sliderList.add(SampleModel(R.drawable.ic_rec2,"nov"))
-        sliderList.add(SampleModel(R.drawable.ic_rectangle_1,"dec"))
+    private fun getFakeData():List<GraphModel> {
+        val sliderList = ArrayList<GraphModel>()
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"Jan"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"feb"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"mar"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"apr"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"may"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"jun"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"jul"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"aug"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"oct"))
+        sliderList.add(GraphModel(R.drawable.ic_rec2,"nov"))
+        sliderList.add(GraphModel(R.drawable.ic_rectangle_1,"dec"))
         return sliderList.reversed()
     }
 }

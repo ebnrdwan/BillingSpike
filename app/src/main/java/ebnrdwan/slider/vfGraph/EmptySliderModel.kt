@@ -1,4 +1,4 @@
-package ebnrdwan.slider
+package ebnrdwan.slider.vfGraph
 
 import ebnrdwan.lib.slider.ISliderModel
 

@@ -89,9 +89,21 @@ abstract class BaseSliderAdapter : RecyclerView.Adapter<BaseSliderAdapter.BaseSl
         this.refineDimensions = enableSlider
     }
 
-    open inner class BaseSliderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    abstract inner class BaseSliderViewHolder(itemView: View,isRefinedDimensions :Boolean) : RecyclerView.ViewHolder(itemView) {
+        private val itemWidthRatio = 2.8;
+
         init {
-            if (isRefinedDimensions()) refineViewWidth(itemView)
+            if (isRefinedDimensions) refineViewWidth(itemView)
         }
+
+        private fun refineViewWidth(view: View) {
+            view.layoutParams.width =
+                (ViewHelper.getScreenWidth().toDouble() / itemWidthRatio).roundToInt()
+            view.requestLayout()
+        }
+
+        abstract fun bind(model: ISliderModel, sliderPosition:Int)
+
+
     }
 }

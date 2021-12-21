@@ -1,12 +1,12 @@
-package ebnrdwan.slider
+package ebnrdwan.slider.vfGraph
 
 import alirezat775.sliderview.R
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import ebnrdwan.lib.slider.BaseSliderAdapter
 import ebnrdwan.lib.slider.ISliderModel
 import kotlinx.android.synthetic.main.item_slider.view.*
@@ -47,57 +47,74 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?) : BaseSliderA
         this.sliderPosition = position
         notifyDataSetChanged()
     }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseSliderViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == _normalItem) {
             val v = inflater.inflate(R.layout.item_slider, parent, false)
-            vh = SliderViewHolder(v)
-            vh as SliderViewHolder
+            GraphViewHolder(v, isRefinedDimensions())
+
         } else {
             val v = inflater.inflate(R.layout.item_empty_slider, parent, false)
-            vh = EmptyViewHolder(v)
-            vh as EmptyViewHolder
+            EmptyViewHolder(v)
         }
     }
 
     override fun onBindViewHolder(holderBase: BaseSliderViewHolder, position: Int) {
         when (holderBase) {
-            is SliderViewHolder -> {
-                vh = holderBase
-                val model = getItems()[position] as SampleModel
-                (vh as SampleAdapter.SliderViewHolder).icon.setImageResource(model.imageId())
-                (vh as SampleAdapter.SliderViewHolder).month.text= model.month
-                Log.d("onBindViewHolder", "position ${position}|| $sliderPosition refined ${isRefinedDimensions()} ")
-                if (position == sliderPosition) {
-                    (vh as SampleAdapter.SliderViewHolder).indicator.visibility = View.VISIBLE
-                } else (vh as SampleAdapter.SliderViewHolder).indicator.visibility = View.GONE
+            is GraphViewHolder -> {
+                (holderBase as? GraphViewHolder)?.bind(getItems()[position], sliderPosition)
             }
         }
     }
 
-    inner class SliderViewHolder(itemView: View) : BaseSliderViewHolder(itemView) {
+    inner class GraphViewHolder(itemView: View, isRefinedDimensions: Boolean) : BaseSliderViewHolder(itemView, isRefinedDimensions) {
 
-        var icon: ImageView = itemView.imgContinent
+        var bar: ImageView = itemView.imgContinent
         var indicator: View = itemView.selectionIndicator
         var month: TextView = itemView.txtMonth
 
+        override fun bind(model: ISliderModel, sliderPosition: Int) {
+            if (model is GraphModel) {
+                setItemData(model)
+                setItemListener(model)
+            }
+            setIndicatorState(sliderPosition)
+        }
 
-        init {
+        private fun setIndicatorState(sliderPosition: Int) {
+            if (adapterPosition == sliderPosition) {
+                month.setTextColor(ContextCompat.getColor(itemView.context,R.color.colorAccent))
+                indicator?.visibility = View.VISIBLE
+            } else {
+                month.setTextColor(ContextCompat.getColor(itemView.context,R.color.colorPrimary))
+
+                indicator?.visibility = View.GONE
+            }
+        }
+
+        private fun setItemData(model: GraphModel) {
+            bar?.setImageResource(model.imageId())
+            month?.text = model.month
+        }
+
+        private fun setItemListener(model: ISliderModel) {
             itemView.setOnClickListener {
                 onItemClickListener?.onSliderItemClick(
                     adapterPosition,
-                    getItemAtPosition(adapterPosition) as SampleModel
+                    model as GraphModel
                 )
             }
         }
 
     }
 
-    inner class EmptyViewHolder(itemView: View) : BaseSliderViewHolder(itemView) {
+    inner class EmptyViewHolder(itemView: View) : BaseSliderViewHolder(itemView, false) {
+        override fun bind(model: ISliderModel, sliderPosition: Int) {
+
+        }
     }
 
     interface OnItemClickListener {
-        fun onSliderItemClick(position: Int, model: SampleModel)
+        fun onSliderItemClick(position: Int, model: GraphModel)
     }
 }
