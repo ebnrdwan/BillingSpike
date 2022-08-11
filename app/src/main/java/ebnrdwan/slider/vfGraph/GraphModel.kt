@@ -5,8 +5,8 @@ import ebnrdwan.lib.slider.ISliderModel
 class GraphModel constructor(
     private var id: Int,
     val month: String,
-    val value: Int,
-    val height: Int = 0
+    var value: Int,
+    var height: Int = 0
 ) :
     ISliderModel {
 
@@ -14,5 +14,5 @@ class GraphModel constructor(
         return id
     }
 
-    fun isNegative() = value > 0
+    fun isNegative() = value < 0
 }

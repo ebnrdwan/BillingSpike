@@ -1,6 +1,7 @@
 package ebnrdwan.slider.vfGraph
 
 import alirezat775.sliderview.R
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import ebnrdwan.lib.slider.BaseSliderAdapter
 import ebnrdwan.lib.slider.ISliderModel
+
 import kotlinx.android.synthetic.main.item_slider.view.*
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 
 class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMargin: Int) :
@@ -97,6 +101,8 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
         }
 
         private fun setItemData(model: GraphModel) {
+           bar.setHeight(model.height)
+            Log.d("setItemData", "setItemData: ${model.height}")
             bar?.setImageResource(model.imageId())
             month?.text = model.month
         }
@@ -109,6 +115,7 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
                 )
             }
         }
+
 
     }
 

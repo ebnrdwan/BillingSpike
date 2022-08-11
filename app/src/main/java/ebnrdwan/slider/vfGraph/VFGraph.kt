@@ -47,14 +47,38 @@ class VFGraph @JvmOverloads constructor(
         //calculate negative shift and shift up base line
         // send height of each bar to recycler
         //show highlight card
+
+        //1 calculate view height
+        val height =
+            context.pxToDp(context.resources.getDimension(R.dimen.graph_height).roundToInt())
+
+        // filter positives and negatives
+        var positives = itemsList.filter { it.value > 0 }
+        var negatives = itemsList.filter { it.value < 0 }
+        // get max values
+        val highestNegative = negatives.maxBy { abs(it.value) }?.value;
+        val highestPositive = positives.maxBy { abs(it.value) }?.value;
+        val negativeHeightPercentageOfChart =
+            (abs(highestNegative ?: 0).toFloat() / height.toFloat())
+        var baseLineMargin = (negativeHeightPercentageOfChart * height.toFloat())
+        var margin: Int = baseLineMargin.roundToInt()
+        baseLine.setMargins(bottom = margin)
+
+
         val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true)
-        sliderAdapter = SampleAdapter(clickOnSlider,50)
+        sliderAdapter = SampleAdapter(clickOnSlider, 50 + margin)
         root.slider_view.sliderLayoutManager = sliderLayoutManager
         root.slider_view.adapter = sliderAdapter
         root.slider_view.setCalculateCenterThreshold(true)
+        testList.map {
+            getHeightValueForModel(
+                context.pxToDp(    context.resources.getDimension(R.dimen.graph_height).roundToInt()),
+                it,
+                highestNegative ?: 0,
+                highestPositive ?: 0
+            )
+        }
         sliderAdapter.addAll(testList.toMutableList())
-
-        handleChart()
     }
 
 
@@ -92,51 +116,59 @@ class VFGraph @JvmOverloads constructor(
         }
     }
 
-    private fun handleChart() {
+    private fun handleChart(testList: List<GraphModel>) {
         chartSpike.viewTreeObserver.addOnGlobalLayoutListener(object :
             OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 // Ensure you call it only once :
-                drawChart()
+                drawChart(testList)
                 chartSpike.viewTreeObserver.removeGlobalOnLayoutListener(this)
 
             }
         })
     }
 
-    private fun drawChart() {
-        val height = context.pxToDp(chartSpike.height)
+
+    private fun drawChart(testList: List<GraphModel>) {
         var positives = itemsList.filter { it.value > 0 }
         var negatives = itemsList.filter { it.value < 0 }
-        // draw negative
-        val highestNegative = negatives.maxBy { abs(it.value) }?.value ?: 0;
-        if (highestNegative == 0) return
+        val height = context.resources.getDimension(R.dimen.graph_height).roundToInt()
+//        getHeightValueForModel(height, negatives)
+//        drawPositiveBars(height,positives)
 
-        val negativeHeightPercentageOfChart = (abs(highestNegative).toFloat() / height.toFloat())
-        val baseLineMargin: Float = negativeHeightPercentageOfChart * height.toFloat()
-        baseLine.setMargins(bottom = baseLineMargin.roundToInt())
-        this.baseLineMargin = baseLineMargin.roundToInt()
+    }
 
-//        val negBar1Height = negBar1 / highestNegative * (negativeHeightPercentageOfChart * height)
-//        negative_bar1.setHeight(context.dpToPx(negBar1Height.roundToInt()))
-//
-//        val negBar2Height =
-//            abs(negBar2).toFloat() / abs(highestNegative).toFloat() * (negativeHeightPercentageOfChart * height)
-//        negative_bar2.setHeight(dpToPx(negBar2Height.roundToInt()))
-//
-//
+    private fun getHeightValueForModel(
+        height: Int,
+        model: GraphModel,
+        highestNegative: Int,
+        highestPositive: Int
+    ): GraphModel {
+        if (model.isNegative()) {
+            if (highestNegative == 0) return model
 
+            val negativeHeightPercentageOfChart =
+                (abs(highestNegative ?: 0).toFloat() / height.toFloat())
+            val negBar1Height =
+                (model.value / abs(highestNegative).toFloat() * (negativeHeightPercentageOfChart * height)).roundToInt()
+            model.value = negBar1Height;
 
-//        val highestPositive = posBar1;
-//
-//        val negativeHeightPercentageOfChart = if (highestNegative>0) abs(highestNegative).toFloat() / height.toFloat() else 0f
-//        val positiveHeightPercentageOfChart = 1-negativeHeightPercentageOfChart
-//
-//        val posBar1Height = posBar1 / highestPositive * (positiveHeightPercentageOfChart * height)
-//        positive_bar1.setHeight(dpToPx(posBar1Height.roundToInt()))
-//
-//        val posBar2Height = abs(posBar2).toFloat() / abs(highestPositive).toFloat() * (positiveHeightPercentageOfChart * height)
-//        positive_bar2.setHeight(dpToPx(posBar2Height.roundToInt()))
+            return model;
+        } else {
+            val negativeHeightPercentageOfChart =
+                (abs(highestNegative ?: 0).toFloat() / height.toFloat())
+            val positiveHeightPercentageOfChart = 1 - negativeHeightPercentageOfChart
+
+            var persentageBar:Float = model.value.toFloat() / highestPositive.toFloat()
+          var  persentageHieght= positiveHeightPercentageOfChart * height.toFloat()
+
+//            val posBar1Height =
+//                ((model.value / highestPositive) * (positiveHeightPercentageOfChart * height)).roundToInt()
+            val posBar1Height = persentageBar* persentageHieght;
+            model.height = posBar1Height.roundToInt();
+
+            return model;
+        }
 
     }
 
