@@ -79,6 +79,9 @@ class VFGraph @JvmOverloads constructor(
             )
         }
         sliderAdapter.addAll(testList.toMutableList())
+        if ( testList!!.size <= 1)
+            root.slider_view.setOnTouchListener { _, _ -> true }
+        handleChart()
     }
 
 
