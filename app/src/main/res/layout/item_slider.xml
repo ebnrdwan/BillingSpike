@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imgContinent"
+        android:id="@+id/imgBar"
         android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_centerHorizontal="true"
@@ -76,18 +76,18 @@
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imgContinent"
+        android:layout_below="@id/imgBar"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        android:layout_toStartOf="@id/imgContinent"
-        android:layout_toEndOf="@id/imgContinent"
+        android:layout_toStartOf="@id/imgBar"
+        android:layout_toEndOf="@id/imgBar"
         android:gravity="center"
         android:text="Month"
         android:textColor="#000"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/imgContinent"
-        app:layout_constraintStart_toEndOf="@id/imgContinent" />
+        app:layout_constraintEnd_toStartOf="@id/imgBar"
+        app:layout_constraintStart_toEndOf="@id/imgBar" />
 
 
     <View

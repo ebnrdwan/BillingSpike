@@ -11,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import ebnrdwan.lib.slider.OnScrollFadeViews
 import ebnrdwan.lib.slider.SliderLayoutManager
 import ebnrdwan.lib.slider.SliderRecyclerView
 import ebnrdwan.lib.slider.slider_listener.SliderListener
@@ -27,9 +28,11 @@ class VFGraph @JvmOverloads constructor(
     var root: View = inflate(mContext, R.layout.voda_graph_layout, this)
     lateinit var sliderAdapter: SampleAdapter
     lateinit var itemsList: List<GraphModel>
+    var onScrollFadeViews:OnScrollFadeViews?=null
     var baseLineMargin: Int = 0
-    fun init(testList: List<GraphModel>) {
+    fun init(testList: List<GraphModel>, onScrollFadeViews:OnScrollFadeViews?) {
         this.itemsList = testList
+        this.onScrollFadeViews = onScrollFadeViews;
         initSliderComponent(testList)
     }
 
@@ -65,7 +68,7 @@ class VFGraph @JvmOverloads constructor(
         baseLine.setMargins(bottom = margin)
 
 
-        val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true)
+        val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true, onScrollFadeViews =  onScrollFadeViews)
         sliderAdapter = SampleAdapter(clickOnSlider, 50 + margin)
         root.slider_view.sliderLayoutManager = sliderLayoutManager
         root.slider_view.adapter = sliderAdapter
@@ -81,7 +84,6 @@ class VFGraph @JvmOverloads constructor(
         sliderAdapter.addAll(testList.toMutableList())
         if ( testList!!.size <= 1)
             root.slider_view.setOnTouchListener { _, _ -> true }
-        handleChart(testList)
     }
 
 
@@ -119,27 +121,8 @@ class VFGraph @JvmOverloads constructor(
         }
     }
 
-    private fun handleChart(testList: List<GraphModel>) {
-        chartSpike.viewTreeObserver.addOnGlobalLayoutListener(object :
-            OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                // Ensure you call it only once :
-                drawChart(testList)
-                chartSpike.viewTreeObserver.removeGlobalOnLayoutListener(this)
-
-            }
-        })
-    }
 
 
-    private fun drawChart(testList: List<GraphModel>) {
-        var positives = itemsList.filter { it.value > 0 }
-        var negatives = itemsList.filter { it.value < 0 }
-        val height = context.resources.getDimension(R.dimen.graph_height).roundToInt()
-//        getHeightValueForModel(height, negatives)
-//        drawPositiveBars(height,positives)
-
-    }
 
     private fun getHeightValueForModel(
         height: Int,

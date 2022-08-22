@@ -3,6 +3,7 @@ package ebnrdwan.slider
 import alirezat775.sliderview.R
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import ebnrdwan.lib.slider.OnScrollFadeViews
 import ebnrdwan.slider.vfGraph.GraphModel
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -18,7 +19,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun initSliderComponent(testList: List<GraphModel>) {
         lifecycle.addObserver(vfGraph)
-        vfGraph.init(testList)
+        vfGraph.init(testList, object :OnScrollFadeViews{
+            override fun onFadeView(centerThreshold: Float) {
+testView.alpha = centerThreshold;
+            }
+        })
 
 
     }

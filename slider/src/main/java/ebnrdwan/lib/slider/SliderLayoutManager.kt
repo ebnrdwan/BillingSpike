@@ -5,10 +5,11 @@ import android.view.View
 
 open class SliderLayoutManager(
     context: Context?, orientation: Int, reverseLayout: Boolean,
-      _shrinkAmount: Float = 0.4f,
-      _shrinkDistance: Float = 0.9f,
-     _defaultScrollSpeed: Float = 150f,
-    private val reduceFadeBy: Float = 0.3f
+    _shrinkAmount: Float = 0.4f,
+    _shrinkDistance: Float = 0.9f,
+    _defaultScrollSpeed: Float = 150f,
+    private val reduceFadeBy: Float = 0.3f,
+    val onScrollFadeViews: OnScrollFadeViews?
 ) :
     BaseSliderLayoutManager(
         context,
@@ -39,11 +40,13 @@ open class SliderLayoutManager(
     }
 
     private fun fadeView(view: View, centerThreshold: Float, reduceFadeBy: Float) {
+        var float: Float = 0.0f;
+        float = if (centerThreshold in tightRangeAroundCenter)
+            centerThreshold
+        else centerThreshold - reduceFadeBy
 
-        if (centerThreshold in tightRangeAroundCenter)
-            view.alpha = centerThreshold
-        else view.alpha = centerThreshold - reduceFadeBy
-
+        view.alpha = float;
+        onScrollFadeViews?.onFadeView(float)
     }
 
 }

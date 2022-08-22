@@ -12,8 +12,6 @@ import ebnrdwan.lib.slider.BaseSliderAdapter
 import ebnrdwan.lib.slider.ISliderModel
 
 import kotlinx.android.synthetic.main.item_slider.view.*
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 
 class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMargin: Int) :
@@ -76,7 +74,7 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
     inner class GraphViewHolder(itemView: View, isRefinedDimensions: Boolean,val margin:Int) :
         BaseSliderViewHolder(itemView, isRefinedDimensions) {
 
-        var bar: ImageView = itemView.imgContinent
+        var bar: ImageView = itemView.imgBar
         var indicator: View = itemView.selectionIndicator
         var month: TextView = itemView.txtMonth
 
