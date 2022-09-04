@@ -53,6 +53,8 @@ class VFGraph @JvmOverloads constructor(
         sliderAdapter = GraphAdapter(clickOnSlider, 50 + margin)
         root.slider_view.adapter = sliderAdapter
         root.slider_view.setSlideOnFling(true)
+        root.slider_view.setOverScrollEnabled(true);
+        root.slider_view.setSlideOnFlingThreshold(1100);
         root.slider_view.addOnItemChangedListener(this)
 //        root.slider_view.setItemTransitionTimeMillis(100)
         root.slider_view.addScrollStateChangeListener(this)

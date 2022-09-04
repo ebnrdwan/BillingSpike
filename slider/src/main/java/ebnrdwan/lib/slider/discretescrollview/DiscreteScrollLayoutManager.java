@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -398,7 +399,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
                 return;
             }
         } else if (state == RecyclerView.SCROLL_STATE_DRAGGING) {
-            onDragStart();
+//            onDragStart();
         }
         currentScrollState = state;
     }
@@ -495,20 +496,26 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
             //We can scroll to the left when currentPosition == 0 only if we scrolled to the right before
             isBoundReached = scrolled == 0;
             allowedScroll = isBoundReached ? 0 : Math.abs(scrolled);
+            Log.d(TAG, "calculateAllowedScrollIn start&& 0 :"+scrolled);
         } else if (direction == Direction.END && currentPosition == recyclerViewProxy.getItemCount() - 1) {
             //We can scroll to the right when currentPosition == last only if we scrolled to the left before
             isBoundReached = scrolled == 0;
             allowedScroll = isBoundReached ? 0 : Math.abs(scrolled);
+            Log.d(TAG, "calculateAllowedScrollIn end&& last :"+scrolled);
         } else {
             isBoundReached = false;
             allowedScroll = isScrollDirectionAsBefore ?
                     scrollToChangeCurrent - Math.abs(scrolled) :
                     scrollToChangeCurrent + Math.abs(scrolled);
+            Log.d(TAG, "calculateAllowedScrollIn normal :"+scrolled+ "//"+scrollToChangeCurrent);
         }
+        Log.d(TAG, "calculateAllowedScrollIn bound:"+isBoundReached);
+        Log.d(TAG, "calculateAllowedScrollIn allowScroll:"+allowedScroll);
         scrollStateListener.onIsBoundReachedFlagChange(isBoundReached);
         return allowedScroll;
     }
 
+ String TAG = "DISC_Layout";
     private void startSmoothPendingScroll() {
         LinearSmoothScroller scroller = new DiscreteLinearSmoothScroller(context);
         scroller.setTargetPosition(currentPosition);
