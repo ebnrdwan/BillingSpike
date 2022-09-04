@@ -14,15 +14,12 @@ import ebnrdwan.lib.slider.ISliderModel
 import kotlinx.android.synthetic.main.item_slider.view.*
 
 
-class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMargin: Int) :
+class GraphAdapter(var onItemClickListener: OnItemClickListener?, val baseLineMargin: Int) :
     BaseSliderAdapter() {
 
     private val _emptyItem = 0
     private val _normalItem = 1
     private var sliderPosition = -1
-
-    private var vh: BaseSliderViewHolder? = null
-
     init {
         enableRefineDimensions(false)
     }
@@ -39,10 +36,7 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
     }
 
     override fun addAll(items: MutableList<ISliderModel>) {
-        if (!isRefinedDimensions()) {
-            items.add(0, EmptySliderModel())
-            items.add(EmptySliderModel())
-        }
+        sliderPosition = items.size-1
         super.addAll(items)
     }
 

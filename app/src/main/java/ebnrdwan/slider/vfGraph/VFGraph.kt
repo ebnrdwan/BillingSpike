@@ -3,50 +3,34 @@ package ebnrdwan.slider.vfGraph
 import alirezat775.sliderview.R
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import ebnrdwan.lib.slider.OnScrollFadeViews
-import ebnrdwan.lib.slider.SliderLayoutManager
-import ebnrdwan.lib.slider.SliderRecyclerView
-import ebnrdwan.lib.slider.slider_listener.SliderListener
-import kotlinx.android.synthetic.main.voda_graph_layout.view.*
+import ebnrdwan.lib.slider.discretescrollview.DiscreteScrollView
+import kotlinx.android.synthetic.main.vf_graph_layout.view.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class VFGraph @JvmOverloads constructor(
     private val mContext: Context,
-
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ConstraintLayout(mContext, attrs, defStyleAttr), LifecycleObserver {
-    var root: View = inflate(mContext, R.layout.voda_graph_layout, this)
-    lateinit var sliderAdapter: SampleAdapter
+) : ConstraintLayout(mContext, attrs, defStyleAttr), LifecycleObserver,
+    DiscreteScrollView.ScrollStateChangeListener<GraphAdapter.GraphViewHolder>,
+    DiscreteScrollView.OnItemChangedListener<GraphAdapter.GraphViewHolder> {
+    var root: View = inflate(mContext, R.layout.vf_graph_layout, this)
+    lateinit var sliderAdapter: GraphAdapter
     lateinit var itemsList: List<GraphModel>
-    var onScrollFadeViews:OnScrollFadeViews?=null
+    var onScrollFadeViews: OnScrollFadeViews? = null
     var baseLineMargin: Int = 0
-    fun init(testList: List<GraphModel>, onScrollFadeViews:OnScrollFadeViews?) {
+    fun init(testList: List<GraphModel>, onScrollFadeViews: OnScrollFadeViews?) {
         this.itemsList = testList
         this.onScrollFadeViews = onScrollFadeViews;
         initSliderComponent(testList)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun registerNetworkCallback() {
-        root.slider_view.addSliderListener(sliderListener)
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun unregisterNetworkCallback() {
-        root.slider_view.removeSliderListener()
-    }
-
-    private fun initSliderComponent(testList: List<GraphModel>) {
+    private fun initSliderComponent(barsList: List<GraphModel>) {
         //calculate negative shift and shift up base line
         // send height of each bar to recycler
         //show highlight card
@@ -66,62 +50,32 @@ class VFGraph @JvmOverloads constructor(
         var baseLineMargin = (negativeHeightPercentageOfChart * height.toFloat())
         var margin: Int = baseLineMargin.roundToInt()
         baseLine.setMargins(bottom = margin)
-
-
-        val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true, onScrollFadeViews =  onScrollFadeViews)
-        sliderAdapter = SampleAdapter(clickOnSlider, 50 + margin)
-        root.slider_view.sliderLayoutManager = sliderLayoutManager
+        sliderAdapter = GraphAdapter(clickOnSlider, 50 + margin)
         root.slider_view.adapter = sliderAdapter
-        root.slider_view.setCalculateCenterThreshold(true)
-        testList.map {
+        root.slider_view.setSlideOnFling(true)
+        root.slider_view.addOnItemChangedListener(this)
+//        root.slider_view.setItemTransitionTimeMillis(100)
+        root.slider_view.addScrollStateChangeListener(this)
+
+        barsList.map {
             getHeightValueForModel(
-                context.pxToDp(    context.resources.getDimension(R.dimen.graph_height).roundToInt()),
+                context.pxToDp(context.resources.getDimension(R.dimen.graph_height).roundToInt()),
                 it,
                 highestNegative ?: 0,
                 highestPositive ?: 0
             )
         }
-        sliderAdapter.addAll(testList.toMutableList())
-        if ( testList!!.size <= 1)
-            root.slider_view.setOnTouchListener { _, _ -> true }
+        sliderAdapter.addAll(barsList.toMutableList())
+        root.slider_view.scrollToPosition(barsList.size-1)
     }
 
 
-    private val sliderListener: SliderListener = object :
-        SliderListener {
-        override fun onPositionChange(position: Int) {
-            Log.d("GRAPH", "onPositionChange: $position")
-            sliderAdapter.setSliderPosition(position)
-            handleScrollingToEmptyItems(position)
 
-        }
-    }
-
-    /** @param position current selected item position
-     * {Case position=0 --> user scrolling to first empty item which is invisible
-     * handling: scroll back to first visible item}
-     * {Case position > itemsList.size --> user scrolling to last empty item which is invisible
-     * handling: scroll back to last visible item}
-     * */
-    private fun handleScrollingToEmptyItems(position: Int) {
-
-        if (position == 0) {
-            slider_view.smoothScrollToPosition(1)
-            return
-        }
-        if (position > itemsList.size) {
-            slider_view.smoothScrollToPosition(itemsList.size)
-            return
-        }
-    }
-
-    private val clickOnSlider = object : SampleAdapter.OnItemClickListener {
+    private val clickOnSlider = object : GraphAdapter.OnItemClickListener {
         override fun onSliderItemClick(position: Int, model: GraphModel) {
             slider_view.smoothScrollToPosition(position)
         }
     }
-
-
 
 
     private fun getHeightValueForModel(
@@ -145,12 +99,10 @@ class VFGraph @JvmOverloads constructor(
                 (abs(highestNegative ?: 0).toFloat() / height.toFloat())
             val positiveHeightPercentageOfChart = 1 - negativeHeightPercentageOfChart
 
-            var persentageBar:Float = model.value.toFloat() / highestPositive.toFloat()
-          var  persentageHieght= positiveHeightPercentageOfChart * height.toFloat()
+            var persentageBar: Float = model.value.toFloat() / highestPositive.toFloat()
+            var persentageHieght = positiveHeightPercentageOfChart * height.toFloat()
 
-//            val posBar1Height =
-//                ((model.value / highestPositive) * (positiveHeightPercentageOfChart * height)).roundToInt()
-            val posBar1Height = persentageBar* persentageHieght;
+            val posBar1Height = persentageBar * persentageHieght;
             model.height = posBar1Height.roundToInt();
 
             return model;
@@ -159,34 +111,26 @@ class VFGraph @JvmOverloads constructor(
     }
 
 
-}
-
-
-public fun View.setMargins(left: Int = 0, top: Int = 0, right: Int = 0, bottom: Int = 0) {
-    if (this.layoutParams is ViewGroup.MarginLayoutParams) {
-        val p = this.layoutParams as ViewGroup.MarginLayoutParams
-        val scale = context.resources.displayMetrics.density
-        // convert the DP into pixel
-        val l = (left * scale + 0.5f).toInt()
-        val r = (right * scale + 0.5f).toInt()
-        val t = (top * scale + 0.5f).toInt()
-        val b = (bottom * scale + 0.5f).toInt()
-        p.setMargins(l, t, r, b)
-        this.requestLayout()
+    override fun onScrollEnd(p0: GraphAdapter.GraphViewHolder, p1: Int) {
+        sliderAdapter.setSliderPosition(p1)
     }
-}
 
-fun Context.dpToPx(dp: Int): Int {
-    return (dp * resources.displayMetrics.density).toInt()
-}
+    override fun onScrollStart(p0: GraphAdapter.GraphViewHolder, p1: Int) {
+    }
 
-fun Context.pxToDp(px: Int): Int {
-    return (px / resources.displayMetrics.density).toInt()
-}
+    override fun onScroll(
+        p0: Float,
+        p1: Int,
+        p2: Int,
+        p3: GraphAdapter.GraphViewHolder?,
+        p4: GraphAdapter.GraphViewHolder?
+    ) {
+    }
 
-fun View.setHeight(height: Int) {
-    this.layoutParams.height = height - 4
-//    this.layoutParams = ConstraintLayout.LayoutParams(this.width, height)
+    override fun onCurrentItemChanged(p0: GraphAdapter.GraphViewHolder?, position: Int) {
+    }
+
+
 }
 
 

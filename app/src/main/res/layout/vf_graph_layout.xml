@@ -26,13 +26,14 @@
         android:id="@+id/middleLine"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dashed_line_height"
-        android:layout_marginTop="20dp"
+        android:layerType="hardware"
         android:background="@drawable/line_dash"
-        android:layerType="software"
         app:layout_constraintBottom_toTopOf="@id/baseLine"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topLine" />
+
+
 
 
     <View
@@ -70,7 +71,7 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
 
-    <ebnrdwan.lib.slider.SliderRecyclerView
+<ebnrdwan.lib.slider.discretescrollview.DiscreteScrollView
         android:id="@+id/slider_view"
         tools:listitem="@layout/item_slider"
         tools:itemCount="5"

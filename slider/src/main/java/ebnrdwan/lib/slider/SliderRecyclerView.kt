@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.util.AttributeSet
 import android.util.Log
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
@@ -17,16 +16,16 @@ import ebnrdwan.lib.slider.slider_listener.SliderLazyLoadListener
 import ebnrdwan.lib.slider.slider_listener.SliderListener
 import kotlin.math.abs
 
-
-class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
+class SliderRecyclerView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyle: Int = 0
+) :
     RecyclerView(context, attrs, defStyle) {
 
 
     var sliderListener: SliderListener? = null
     var sliderLazyLoadListener: SliderLazyLoadListener? = null
-    var gestureDetector: GestureDetector ? = null
-
-
     private var velocityTracker: VelocityTracker? = null
     var currentPosition: Int = 0
     private var actionDown = true
@@ -36,7 +35,7 @@ class SliderRecyclerView @JvmOverloads constructor(context: Context, attrs: Attr
     private var reverseLoop = true
     private var scheduler: Scheduler? = null
     private var scrolling = true
-var isMove=false;
+
     var anchor: Int = 0
         set(anchor) {
             if (this.anchor != anchor) {
@@ -124,7 +123,106 @@ var isMove=false;
     }
 
 
+    /**
+     * Max allowed duration for a "click", in milliseconds.
+     */
+    private val MAX_CLICK_DURATION = 1000
 
+    /**
+     * Max allowed distance to move during a "click", in DP.
+     */
+    private var MAX_CLICK_DISTANCE = 15
+
+    private var pressStartTime: Long = 0
+    private var pressedX = 0f
+    private var pressedY = 0f
+
+    /**
+     * @return onItemTouchListener for calculate velocity and position fix view center
+     */
+    private fun onItemTouchListener(): OnItemTouchListener {
+        return object : OnItemTouchListener {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                val action = e.actionMasked
+                when (action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        pressStartTime = System.currentTimeMillis();
+                        pressedX = e.getX();
+                        pressedY = e.getY()
+                    }
+                    MotionEvent.ACTION_MOVE -> if (actionDown) {
+                        actionDown = false
+                        if (velocityTracker == null) {
+                            velocityTracker = VelocityTracker.obtain()
+                        } else {
+                            velocityTracker!!.clear()
+                        }
+                        velocityTracker!!.addMovement(e)
+                    } else {
+                        velocityTracker!!.addMovement(e)
+                        velocityTracker!!.computeCurrentVelocity(1000)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+
+                        actionDown = true
+                        val pressDuration = System.currentTimeMillis() - pressStartTime
+                        val clickOn = (pressDuration < MAX_CLICK_DURATION && distance(
+                            pressedX,
+                            pressedY,
+                            e.x,
+                            e.y
+                        ) < MAX_CLICK_DISTANCE
+                                )
+                        Log.d("GestuAbdo", "onInterceptTouchEvent: IsClick $clickOn")
+                        if (!clickOn) {
+                            when (sliderLayoutManager.orientation) {
+                                HORIZONTAL -> if (velocityTracker!!.xVelocity <= 0) {
+                                    if (!isTrustLayout)
+                                        scrolling(-1)// rtl or reverse mode
+                                    else
+                                        scrolling(1)//scroll to right
+                                } else if (velocityTracker!!.xVelocity > 0) {
+                                    if (!isTrustLayout)
+                                        scrolling(1)// rtl or reverse mode
+                                    else
+                                        scrolling(-1)//scroll to left
+                                }
+                                VERTICAL -> if (velocityTracker!!.yVelocity <= 0) {
+                                    if (sliderLayoutManager.getReverseLayout())
+                                        scrolling(-1)// rtl or reverse mode
+                                    else
+                                        scrolling(1)//scroll to up
+                                } else if (velocityTracker!!.yVelocity > 0) {
+                                    if (sliderLayoutManager.getReverseLayout())
+                                        scrolling(1)// rtl or reverse mode
+                                    else
+                                        scrolling(-1)//scroll to down
+                                }
+                            }
+                            velocityTracker!!.recycle()
+                            velocityTracker = null
+                        }
+                    }
+                }
+                return false
+            }
+
+            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+        }
+    }
+
+
+    private fun distance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
+        val dx = x1 - x2
+        val dy = y1 - y2
+        val distanceInPx = Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+        return pxToDp(distanceInPx)
+    }
+
+    private fun pxToDp(px: Float): Float {
+        return px / resources.displayMetrics.density
+    }
 
     /**
      * @param dx delta x
@@ -160,8 +258,8 @@ var isMove=false;
     override fun smoothScrollToPosition(position: Int) {
 
         post { super.smoothScrollToPosition(position) }
-            sliderListener?.onPositionChange(position)
-            currentPosition = position
+        sliderListener?.onPositionChange(position)
+        currentPosition = position
     }
 
     /**
@@ -207,8 +305,10 @@ var isMove=false;
         val firstVisibleItemPosition = sliderLayoutManager.findFirstVisibleItemPosition()
 
         if (firstVisibleItemPosition > -1) {
-            val currentViewClosestToAnchor = sliderLayoutManager.findViewByPosition(firstVisibleItemPosition)
-            var currentViewClosestToAnchorDistance = parentAnchor - getViewAnchor(currentViewClosestToAnchor)
+            val currentViewClosestToAnchor =
+                sliderLayoutManager.findViewByPosition(firstVisibleItemPosition)
+            var currentViewClosestToAnchorDistance =
+                parentAnchor - getViewAnchor(currentViewClosestToAnchor)
             var currentViewClosestToAnchorPosition = firstVisibleItemPosition
 
             for (i in firstVisibleItemPosition + 1..lastVisibleItemPosition) {
@@ -337,104 +437,4 @@ var isMove=false;
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class SliderOrientation
-
-
-
-
-    /**
-     * @return onItemTouchListener for calculate velocity and position fix view center
-     */
-    private fun onItemTouchListener(): OnItemTouchListener {
-        return object : OnItemTouchListener {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                val action = e.actionMasked
-                gestureDetector?.onTouchEvent(e);
-                Log.d("Track_action_Action", "action -- $action ")
-                return false
-            }
-
-            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
-            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
-        }
-    }
-
-    private val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onScroll(
-            e1: MotionEvent?,
-            e2: MotionEvent?,
-            distanceX: Float,
-            distanceY: Float
-        ): Boolean {
-            val motion = e2;
-            Log.d(TAG, "GestureDetector-onScroll: ")
-            if (velocityTracker == null) {
-                velocityTracker = VelocityTracker.obtain()
-                velocityTracker?.addMovement(motion)
-                velocityTracker?.computeCurrentVelocity(1000)
-
-            } else {
-                velocityTracker!!.clear()
-                velocityTracker?.addMovement(motion)
-                velocityTracker?.computeCurrentVelocity(1000)
-            }
-            velocityTracker!!.addMovement(motion)
-
-
-            if (velocityTracker != null) {
-                Log.d(TAG, "onScroll: xVelocity ${velocityTracker!!.xVelocity}")
-                when (sliderLayoutManager.orientation) {
-                    HORIZONTAL -> if (velocityTracker!!.xVelocity < 0) {
-                        if (!isTrustLayout){
-                            scrolling(-1)// rtl or reverse mode
-                            Log.d(TAG, "onScroll: rtl or reverse mode -1 -- xVelocity<0  ")
-                        }
-
-                        else
-                        {
-                            scrolling(1)//scroll to right
-                            Log.d(TAG, "onScroll: scroll to right +1 -- xVelocity<0  ")
-                        }
-                    } else if (velocityTracker!!.xVelocity > 0) {
-                        if (!isTrustLayout){
-                            scrolling(1)// rtl or reverse mode
-                            Log.d(TAG, "onScroll: rtl or reverse mode +1 Veclocity ${velocityTracker!!.xVelocity}")
-                        }
-
-                        else{
-                            scrolling(-1)//scroll to left
-                            Log.d(TAG, "onScroll: scroll to left -1 ${velocityTracker!!.xVelocity} ")
-                        }
-                    }
-                    VERTICAL -> if (velocityTracker!!.yVelocity <= 0) {
-                        if (sliderLayoutManager.reverseLayout)
-                            scrolling(-1)// rtl or reverse mode
-                        else
-                            scrolling(1)//scroll to up
-                    } else if (velocityTracker!!.yVelocity > 0) {
-                        if (sliderLayoutManager.reverseLayout)
-                            scrolling(1)// rtl or reverse mode
-                        else
-                            scrolling(-1)//scroll to down
-                    }
-
-                }
-//                velocityTracker?.computeCurrentVelocity(1000)
-                velocityTracker!!.recycle()
-                velocityTracker = null
-            }
-//            return super.onScroll(e1, e2, distanceX, distanceY)
-            return true;
-        }
-
-        override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            Log.d(TAG, "GestureDetector-onSingleTapUp: ")
-            return super.onSingleTapUp(e)
-        }
-    }
-    init {
-        gestureDetector = GestureDetector(context, gestureListener)
-    }
-
 }
-
-var TAG = "Track_action"
