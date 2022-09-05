@@ -70,12 +70,14 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
 
-    <ebnrdwan.lib.slider.SliderRecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/slider_view"
         tools:listitem="@layout/item_slider"
         tools:itemCount="5"
         android:layout_width="match_parent"
         android:layout_height="@dimen/graph_height"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -1,6 +1,5 @@
 package ebnrdwan.slider.vfGraph
 
-import alirezat775.sliderview.R
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
@@ -15,6 +14,7 @@ import ebnrdwan.lib.slider.OnScrollFadeViews
 import ebnrdwan.lib.slider.SliderLayoutManager
 import ebnrdwan.lib.slider.SliderRecyclerView
 import ebnrdwan.lib.slider.slider_listener.SliderListener
+import ebnrdwan.slider.R
 import kotlinx.android.synthetic.main.voda_graph_layout.view.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -38,12 +38,10 @@ class VFGraph @JvmOverloads constructor(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun registerNetworkCallback() {
-        root.slider_view.addSliderListener(sliderListener)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun unregisterNetworkCallback() {
-        root.slider_view.removeSliderListener()
     }
 
     private fun initSliderComponent(testList: List<GraphModel>) {
@@ -70,9 +68,19 @@ class VFGraph @JvmOverloads constructor(
 
         val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true, onScrollFadeViews =  onScrollFadeViews)
         sliderAdapter = SampleAdapter(clickOnSlider, 50 + margin)
-        root.slider_view.sliderLayoutManager = sliderLayoutManager
+
+        val padding: Int = ScreenUtils.getScreenWidth(context) / 2
+        root.slider_view.setPadding(padding, 0, padding, 0)
+
+        root.slider_view.layoutManager = GraphBarsLayoutManager(context).apply {
+            callback = object : GraphBarsLayoutManager.OnItemSelectedListener {
+                override fun onItemSelected(layoutPosition: Int) {
+                    sliderAdapter.setSliderPosition(layoutPosition)
+                    Log.d("onItemSelected", "onItemSelected: $layoutPosition")
+                }
+            }
+        }
         root.slider_view.adapter = sliderAdapter
-        root.slider_view.setCalculateCenterThreshold(true)
         testList.map {
             getHeightValueForModel(
                 context.pxToDp(    context.resources.getDimension(R.dimen.graph_height).roundToInt()),
@@ -82,42 +90,16 @@ class VFGraph @JvmOverloads constructor(
             )
         }
         sliderAdapter.addAll(testList.toMutableList())
-        if ( testList!!.size <= 1)
+        root.slider_view.smoothScrollToPosition(0)
+        if ( testList.size <= 1)
             root.slider_view.setOnTouchListener { _, _ -> true }
-    }
-
-
-    private val sliderListener: SliderListener = object :
-        SliderListener {
-        override fun onPositionChange(position: Int) {
-            Log.d("GRAPH", "onPositionChange: $position")
-            sliderAdapter.setSliderPosition(position)
-            handleScrollingToEmptyItems(position)
-
-        }
-    }
-
-    /** @param position current selected item position
-     * {Case position=0 --> user scrolling to first empty item which is invisible
-     * handling: scroll back to first visible item}
-     * {Case position > itemsList.size --> user scrolling to last empty item which is invisible
-     * handling: scroll back to last visible item}
-     * */
-    private fun handleScrollingToEmptyItems(position: Int) {
-
-        if (position == 0) {
-            slider_view.smoothScrollToPosition(1)
-            return
-        }
-        if (position > itemsList.size) {
-            slider_view.smoothScrollToPosition(itemsList.size)
-            return
-        }
     }
 
     private val clickOnSlider = object : SampleAdapter.OnItemClickListener {
         override fun onSliderItemClick(position: Int, model: GraphModel) {
-            slider_view.smoothScrollToPosition(position)
+            slider_view.scrollToPosition(position)
+            sliderAdapter.setSliderPosition(position)
+            Log.d("onSliderItemClick", "onSliderItemClick: $position ${model.month}")
         }
     }
 

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativeLayout"
     android:layout_width="@dimen/bar_width"
+    android:background="@color/colorAccent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 

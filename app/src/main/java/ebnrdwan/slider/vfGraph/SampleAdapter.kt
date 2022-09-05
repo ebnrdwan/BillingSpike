@@ -1,6 +1,5 @@
 package ebnrdwan.slider.vfGraph
 
-import alirezat775.sliderview.R
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import ebnrdwan.lib.slider.BaseSliderAdapter
 import ebnrdwan.lib.slider.ISliderModel
+import ebnrdwan.slider.R
 
 import kotlinx.android.synthetic.main.item_slider.view.*
 
@@ -24,7 +24,6 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
     private var vh: BaseSliderViewHolder? = null
 
     init {
-        enableRefineDimensions(false)
     }
 
     fun setOnClickListener(onItemClickListener: OnItemClickListener?) {
@@ -39,10 +38,6 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
     }
 
     override fun addAll(items: MutableList<ISliderModel>) {
-        if (!isRefinedDimensions()) {
-            items.add(0, EmptySliderModel())
-            items.add(EmptySliderModel())
-        }
         super.addAll(items)
     }
 

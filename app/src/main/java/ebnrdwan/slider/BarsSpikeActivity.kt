@@ -1,6 +1,5 @@
 package ebnrdwan.slider
 
-import alirezat775.sliderview.R
 import android.content.Context
 import android.os.Bundle
 import android.view.View

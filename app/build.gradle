@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "alirezat775.sliderview2"
+        applicationId "ebnrdwan.slider"
         minSdkVersion 17
         targetSdkVersion 28
         versionCode 1
