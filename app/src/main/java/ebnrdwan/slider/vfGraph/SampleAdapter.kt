@@ -19,7 +19,7 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
 
     private val _emptyItem = 0
     private val _normalItem = 1
-    private var sliderPosition = -1
+    private var sliderPosition = 0
 
     private var vh: BaseSliderViewHolder? = null
 
@@ -64,6 +64,11 @@ class SampleAdapter(var onItemClickListener: OnItemClickListener?,val baseLineMa
                 (holderBase as? GraphViewHolder)?.bind(getItems()[position], sliderPosition)
             }
         }
+    }
+
+    fun getCurrentSliderPosition(): Int {
+        return  sliderPosition;
+
     }
 
     inner class GraphViewHolder(itemView: View, isRefinedDimensions: Boolean,val margin:Int) :

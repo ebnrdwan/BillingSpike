@@ -67,11 +67,9 @@ class VFGraph @JvmOverloads constructor(
 
 
         val sliderLayoutManager = SliderLayoutManager(mContext, SliderRecyclerView.HORIZONTAL, true, onScrollFadeViews =  onScrollFadeViews)
-        sliderAdapter = SampleAdapter(clickOnSlider, 50 + margin)
-
-        val padding: Int = ScreenUtils.getScreenWidth(context) / 2
+        sliderAdapter = SampleAdapter(listener, 50 + margin)
+        val padding: Int = ScreenUtils.getScreenWidth(context) / 2-ScreenUtils.dpToPx(context, 40)
         root.slider_view.setPadding(padding, 0, padding, 0)
-
         root.slider_view.layoutManager = GraphBarsLayoutManager(context).apply {
             callback = object : GraphBarsLayoutManager.OnItemSelectedListener {
                 override fun onItemSelected(layoutPosition: Int) {
@@ -95,13 +93,15 @@ class VFGraph @JvmOverloads constructor(
             root.slider_view.setOnTouchListener { _, _ -> true }
     }
 
-    private val clickOnSlider = object : SampleAdapter.OnItemClickListener {
+    val listener = object : SampleAdapter.OnItemClickListener {
         override fun onSliderItemClick(position: Int, model: GraphModel) {
-            slider_view.scrollToPosition(position)
-            sliderAdapter.setSliderPosition(position)
-            Log.d("onSliderItemClick", "onSliderItemClick: $position ${model.month}")
+            if (position != sliderAdapter.getCurrentSliderPosition()){
+                root.slider_view.smoothScrollToPosition(position)
+            }
         }
     }
+
+
 
 
 

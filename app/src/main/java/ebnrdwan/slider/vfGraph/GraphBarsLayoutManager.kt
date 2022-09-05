@@ -1,7 +1,9 @@
 package ebnrdwan.slider.vfGraph
 
 import android.content.Context
+import android.util.DisplayMetrics
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 
@@ -41,7 +43,22 @@ class GraphBarsLayoutManager(context: Context?) : LinearLayoutManager(context, H
             0
         }
     }
+    override fun smoothScrollToPosition(
+        recyclerView: RecyclerView?,
+        state: RecyclerView.State?,
+        position: Int
+    ) {
+        val linearSmoothScroller: LinearSmoothScroller = object : LinearSmoothScroller(
+            recyclerView!!.context
+        ) {
+            override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics): Float {
+                return 200f / displayMetrics.densityDpi
+            }
+        }
 
+        linearSmoothScroller.targetPosition = position
+        startSmoothScroll(linearSmoothScroller)
+    }
     private fun scaleDownView() {
         val mid = width / 2.0f
         for (i in 0 until childCount) {
