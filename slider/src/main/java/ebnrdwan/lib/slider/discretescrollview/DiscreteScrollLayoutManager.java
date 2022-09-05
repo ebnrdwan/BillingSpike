@@ -14,6 +14,7 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearSmoothScroller;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Locale;
@@ -96,6 +97,15 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         this.orientationHelper = orientation.createHelper();
         this.recyclerViewProxy = new RecyclerViewProxy(this);
         this.transformClampItemCount = DEFAULT_TRANSFORM_CLAMP_ITEM_COUNT;
+    }
+
+
+    @Override
+    public void onAttachedToWindow(RecyclerView view) {
+        super.onAttachedToWindow(view);
+        if (view != null) {
+            new LinearSnapHelper().attachToRecyclerView(view);
+        }
     }
 
     @Override

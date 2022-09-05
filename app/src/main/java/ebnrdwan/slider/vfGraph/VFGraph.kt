@@ -1,6 +1,6 @@
 package ebnrdwan.slider.vfGraph
 
-import alirezat775.sliderview.R
+import ebnrdwan.slider.R
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View

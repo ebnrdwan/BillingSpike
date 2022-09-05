@@ -1,6 +1,6 @@
 package ebnrdwan.slider
 
-import alirezat775.sliderview.R
+import ebnrdwan.slider.R
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import ebnrdwan.lib.slider.OnScrollFadeViews

@@ -1,6 +1,6 @@
 package ebnrdwan.slider.vfGraph
 
-import alirezat775.sliderview.R
+import ebnrdwan.slider.R
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
