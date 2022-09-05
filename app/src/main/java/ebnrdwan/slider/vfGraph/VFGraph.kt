@@ -56,7 +56,7 @@ class VFGraph @JvmOverloads constructor(
         root.slider_view.setOverScrollEnabled(true);
         root.slider_view.setSlideOnFlingThreshold(1100);
         root.slider_view.addOnItemChangedListener(this)
-//        root.slider_view.setItemTransitionTimeMillis(100)
+        root.slider_view.setItemTransitionTimeMillis(100)
         root.slider_view.addScrollStateChangeListener(this)
 
         barsList.map {
