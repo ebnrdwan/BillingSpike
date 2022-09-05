@@ -101,6 +101,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (state.getItemCount() == 0) {
+            Log.d(TAG, "onLayoutChildren: "+ state.getItemCount());
             recyclerViewProxy.removeAndRecycleAllViews(recycler);
             currentPosition = pendingPosition = NO_POSITION;
             scrolled = pendingScroll = 0;
@@ -183,7 +184,6 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         cacheAndDetachAttachedViews();
 
         orientationHelper.setCurrentViewCenter(recyclerCenter, scrolled, currentViewCenter);
-
         final int endBound = orientationHelper.getViewEnd(
                 recyclerViewProxy.getWidth(),
                 recyclerViewProxy.getHeight());
@@ -323,7 +323,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         if (pendingScroll != 0) {
             pendingScroll -= delta;
         }
-
+        Log.d(TAG, "scrollBy: delta" + delta);
         orientationHelper.offsetChildren(-delta, recyclerViewProxy);
 
         if (orientationHelper.hasNewBecomeVisible(this)) {
@@ -360,6 +360,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
+        Log.d(TAG, "smoothScrollToPosition: "+ position);
         if (currentPosition == position || pendingPosition != NO_POSITION) {
             return;
         }
@@ -399,7 +400,7 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
                 return;
             }
         } else if (state == RecyclerView.SCROLL_STATE_DRAGGING) {
-//            onDragStart();
+            onDragStart();
         }
         currentScrollState = state;
     }
@@ -443,8 +444,10 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
             int scrolledPositions = scrolled / scrollToChangeCurrent;
             currentPosition += scrolledPositions;
             scrolled -= scrolledPositions * scrollToChangeCurrent;
+            Log.d(TAG, "onDragStart: multiple items");
         }
         if (isAnotherItemCloserThanCurrent()) {
+            Log.d(TAG, "onDragStart: closer item");
             Direction direction = Direction.fromDelta(scrolled);
             currentPosition += direction.applyTo(1);
             scrolled = -getHowMuchIsLeftToScroll(scrolled);
@@ -466,7 +469,9 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
         newPosition = checkNewOnFlingPositionIsInBounds(newPosition);
         boolean isInScrollDirection = velocity * scrolled >= 0;
         boolean canFling = isInScrollDirection && isInBounds(newPosition);
+        Log.d(TAG, "onFling: " +canFling);
         if (canFling) {
+            Log.d(TAG, "onFling: " +newPosition);
             startSmoothPendingScroll(newPosition);
         } else {
             returnToCurrentPosition();
@@ -509,9 +514,14 @@ public class DiscreteScrollLayoutManager extends RecyclerView.LayoutManager {
                     scrollToChangeCurrent + Math.abs(scrolled);
             Log.d(TAG, "calculateAllowedScrollIn normal :"+scrolled+ "//"+scrollToChangeCurrent);
         }
-        Log.d(TAG, "calculateAllowedScrollIn bound:"+isBoundReached);
+        Log.d(TAG, "calculateAllowedScrollIn allowScroll-bound:"+isBoundReached);
+        Log.d(TAG, "calculateAllowedScrollIn allowScroll-scrollToChangeCurrent:"+scrollToChangeCurrent);
+        Log.d(TAG, "calculateAllowedScrollIn allowScroll-scrolled:"+scrolled);
         Log.d(TAG, "calculateAllowedScrollIn allowScroll:"+allowedScroll);
         scrollStateListener.onIsBoundReachedFlagChange(isBoundReached);
+        if (!isBoundReached) allowedScroll = scrollToChangeCurrent;
+        Log.d(TAG, "calculateAllowedScrollIn allowScroll-return-value:"+scrolled+"//"+currentPosition);
+        Log.d(TAG, "calculateAllowedScrollIn allowScroll-return:"+isBoundReached+"//"+scrollToChangeCurrent);
         return allowedScroll;
     }
 

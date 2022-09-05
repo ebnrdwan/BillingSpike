@@ -3,6 +3,7 @@ package ebnrdwan.lib.slider.discretescrollview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.IntRange;
@@ -87,9 +88,12 @@ public class DiscreteScrollView extends RecyclerView {
     @Override
     public boolean fling(int velocityX, int velocityY) {
         if (layoutManager.isFlingDisallowed(velocityX, velocityY)) {
+            Log.d(TAG, "onFling: filling disallowed");
             return false;
         }
         boolean isFling = super.fling(velocityX, velocityY);
+        Log.d(TAG, "onFling: isFling" + isFling);
+        layoutManager.onFling(velocityX, velocityY);
         if (isFling) {
             layoutManager.onFling(velocityX, velocityY);
         } else {
@@ -103,9 +107,10 @@ public class DiscreteScrollView extends RecyclerView {
         View view = layoutManager.findViewByPosition(position);
         return view != null ? getChildViewHolder(view) : null;
     }
-
+    String TAG = "DISC_recycler";
     @Override
     public void scrollToPosition(int position) {
+        Log.d(TAG, "scrollToPosition: "+position);
         int currentPosition = layoutManager.getCurrentPosition();
         super.scrollToPosition(position);
         if (currentPosition != position) {
@@ -200,6 +205,7 @@ public class DiscreteScrollView extends RecyclerView {
                               int currentIndex, int newIndex,
                               ViewHolder currentHolder, ViewHolder newHolder) {
         for (ScrollStateChangeListener listener : scrollStateChangeListeners) {
+            Log.d(TAG, "notifyScroll:" +position +currentIndex + newIndex);
             listener.onScroll(position, currentIndex, newIndex,
                 currentHolder,
                 newHolder);
